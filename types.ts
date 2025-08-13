@@ -1,81 +1,64 @@
-export type Kid = {
-  id: string;
-  name: string;
-  color?: string;
-  avatarUrl?: string;
-  avatarEmoji?: string;
-  points: number;
-};
+export type ID = string;
 
-export type Schedule =
-  | { type: 'daily' }
-  | { type: 'weekly'; daysOfWeek: number[] }
-  | { type: 'custom'; dates: string[] };
+export type ScheduleType = 'daily' | 'weekly' | 'custom';
 
-export type Chore = {
-  id: string;
+export interface ChoreSchedule {
+  type: ScheduleType;
+  daysOfWeek?: number[];   // 0..6 for Sun..Sat
+  dates?: string[];        // ISO dates for custom
+}
+
+export interface Chore {
+  id: ID;
   title: string;
   points: number;
-  schedule: Schedule;
-  assignedKidIds: string[];
-  streakByKid?: Record<string, number>;
+  schedule: ChoreSchedule;
+  kidIds: ID[];
   order?: number;
-};
+}
 
-export type Reward = { id: string; title: string; cost: number };
+export interface Kid {
+  id: ID;
+  name: string;
+  emoji?: string;
+  points?: number;
+}
 
-export type Completion = {
-  id: string;
-  choreId: string;
-  kidId: string;
-  date: string;       // 'YYYY-MM-DD'
+export interface Completion {
+  id: ID;
+  kidId: ID;
+  choreId: ID;
+  dateISO: string;         // yyyy-mm-dd
   completed: boolean;
-};
+}
 
-export type Payout = {
-  id: string;
-  kidId: string;
-  period: 'weekly' | 'monthly';
-  startISO: string;
-  endISO: string;
+export interface AdjustmentLog {
+  id: ID;
+  kidId: ID;
+  delta: number;
+  reason?: string;
+  timestampISO: string;    // Date.toISOString()
+}
+
+export interface BonusLog {
+  id: ID;
+  kidId: ID;
+  dateISO: string;
+  streakLength: number;
   points: number;
-  dollars: number;
-  timestampISO: string;
-  note?: string;
-};
+}
 
-/** Manual add/deduct with a reason */
-export type Adjustment = {
-  id: string;
-  kidId: string;
-  delta: number;          // positive or negative
-  reason: string;
-  timestampISO: string;
-};
-
-/** Auto bonus awarded when a 10-day (or 20, 30…) streak is hit */
-export type StreakBonus = {
-  id: string;
-  kidId: string;
-  dateISO: string;        // the day the milestone was achieved
-  streakLength: number;   // 10, 20, 30...
-  points: number;         // typically 5
-};
-
-export type Settings = {
-  dollarsPerPoint: number;
+export interface Settings {
   hideCompletedOnBoard: boolean;
-};
+}
 
-export type State = {
+export interface State {
   kids: Kid[];
   chores: Chore[];
-  rewards: Reward[];
   completions: Completion[];
-  payouts: Payout[];
-  /** NEW: logs */
-  adjustments: Adjustment[];
-  streakBonuses: StreakBonus[];
+  adjustments: AdjustmentLog[];
+  bonuses: BonusLog[];
   settings: Settings;
-  version: number;
-};
+}
+
+
